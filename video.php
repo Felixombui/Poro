@@ -1,0 +1,70 @@
+
+<?php
+include 'header.php';
+include 'config.php';
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Video</title>
+</head>
+<body>
+    <h1>Upload Video</h1>
+    <form  action="upload.php" method="post" enctype="multipart/form-data">
+        <input type="text" name="title" id="title" required><br><br>
+        <label for="description">Description:</label>
+        <textarea name="description" id="description" required></textarea><br><br>
+        <label for="video">Video:</label>
+        <input type="file" name="video" id="video" accept="video/*" required><br><br>
+        <label for="thumbnail">Thumbnail:</label>
+        <input type="file" name="thumbnail" id="thumbnail" accept="image/*" required><br><br>
+        <input type="submit" name="submit" value="Upload">
+    </form>
+    <?php
+        // Check if the form is submitted
+        if(isset($_POST['submit'])) {
+            // Get the form data
+            $title = $_POST['title'];
+            $description = $_POST['description'];
+            $video_name = $_FILES['video']['name'];
+            $thumbnail_name = $_FILES['thumbnail']['name'];
+            $video_tmp_name = $_FILES['video']['tmp_name'];
+            $thumbnail_tmp_name = $_FILES['thumbnail']['tmp_name'];
+            $video_size = $_FILES['video']['size'];
+            $thumbnail_size = $_FILES['thumbnail']['size'];
+            $video_type = $_FILES['video']['type'];
+            $thumbnail_type = $_FILES['thumbnail']['type'];
+            $video_ext = strtolower(pathinfo($video_name, PATHINFO_EXTENSION));
+            $thumbnail_ext = strtolower(pathinfo($thumbnail_name, PATHINFO_EXTENSION));
+            $allowed_video_ext = array("mp4", "avi", "mov");
+            $allowed_thumbnail_ext = array("jpg", "jpeg", "png");
+            $max_video_size = 50000000; // 50MB
+            $max_thumbnail_size = 5000000; // 5MB
+            $upload_dir = "uploads/";
+            $video_file = $upload_dir . uniqid() . "." . $video_ext;
+            $thumbnail_file = $upload_dir . uniqid() . "." . $thumbnail_ext;
+
+            // Validate the form data
+            if(empty($title) || empty($description)) {
+                echo "<p>Please fill in all fields.</p>";
+            } elseif(!in_array($video_ext, $allowed_video_ext) || !in_array($thumbnail_ext, $allowed_thumbnail_ext)) {
+                echo "<p>Invalid file type.</p>";
+            } elseif($video_size > $max_video_size || $thumbnail_size > $max_thumbnail_size) {
+                echo "<p>File size too large.</p>";
+            } else {
+                // Upload the files
+                if(move_uploaded_file($video_tmp_name, $video_file) && move_uploaded_file($thumbnail_tmp_name, $thumbnail_file)) {
+                    // Save the data to the database
+                    // Code to save data to database goes here
+                    echo "<p>Video uploaded successfully.</p>";
+                } else {
+                    echo "<p>Failed to upload files.</p>";
+                }
+            }
+        }
+    ?>
+</body>
+</html>
+<style>
+        <?php include 'styles.css' ?>
+    </style>
